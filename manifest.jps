@@ -64,23 +64,24 @@
          {
             "caption": "Configure",
             "loadingText": "Load text while waiting",
-            "fields": [
-               {
-                  "type": "list",
-                  "required": true,
-                  "caption": "Configure",
-                  "settings":"config",
-                  "name": "customString",
-                  "values": {
-                     "setup": "0.10.x",
-                     "setup_0.12": "0.12.x",
-                     "setup_4.x": "4.x",
-                     "setup_5.x": "5.x",
-                     "setup_6.x": "6.x"
-                  },
-                  "default": "setup_6.x"
-               }
-            ],
+            "settings": {
+               "fields": [
+                  {
+                     "type": "list",
+                     "name": "version",
+                     "required": true,
+                     "caption": "Node.js version",
+                     "values": {
+                        "setup": "0.10.x",
+                        "setup_0.12": "0.12.x",
+                        "setup_4.x": "4.x",
+                        "setup_5.x": "5.x",
+                        "setup_6.x": "6.x"
+                     },
+                     "default": "setup_6.x"
+                  }
+               ]
+            },
             "procedure": "reinstallNode"
          }
       ],
@@ -133,7 +134,7 @@
                         "nodeMission": "cp",
                         "user": "root",
                         "commands": [
-                           "rpm -e nodejs nodesource-release 2>&1"
+                           "rpm -e nodejs nodesource-release 2>/dev/null 1>/dev/null"
                         ]
                      }
                   ]
@@ -161,9 +162,9 @@
                         "nodeMission": "cp",
                         "user": "jelastic",
                         "commands": [
-                           "rpm -e nodejs nodesource-release 2>&1",
-                           "rm -rf $HOME/node_modules 2>&1",
-                           "sed -i \"/node_modules/d\" $HOME/.bashrc 2>&1"
+                           "rpm -e nodejs nodesource-release 2>/dev/null 1>/dev/null",
+                           "rm -rf $HOME/node_modules 2>/dev/null 1>/dev/null",
+                           "sed -i \"/node_modules/d\" $HOME/.bashrc 2>/dev/null 1>/dev/null"
                         ]
                      }
                   ]
@@ -175,7 +176,7 @@
                         "user": "root",
                         "commands": [
                            "tty -s && mesg n 2>&1",
-                           "curl --silent --location https://rpm.nodesource.com/${settings.customString} | bash - 2>/dev/null 1>/dev/null",
+                           "curl --silent --location https://rpm.nodesource.com/${settings.version} | bash - 2>/dev/null 1>/dev/null",
                            "yum clean all",
                            "yum -y install nodejs 2>/dev/null 1>/dev/null",
                            "npm -g install npm@latest 2>/dev/null 1>/dev/null"
