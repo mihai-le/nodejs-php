@@ -40,6 +40,21 @@
                }
             ],
             "loadingText": "Performing NodeJS update..."
+         },
+         {
+            "caption": "Install Agent",
+            "confirmText": "This option will replace the current NodeJS version. Would you like to continue?",
+            "menu": [
+               {
+                  "caption": "Update Agent",
+                  "procedure": "installNode",
+                  "confirmText": "This option will check for the NodeJS updates. Would you like to continue?",
+                  "successText": "The NodeJS add-on was updated. Please, restart your web server instance for the changes to be applied.",
+                  "loadingText": "Performing NodeJS update..."
+               }
+            ],
+            "procedure": "installNode",
+            "loadingText": "Performing NodeJS update..."
          }
       ],
       "settings": {
@@ -62,27 +77,54 @@
       },
       "buttons": [
          {
+            "settings": "config",
             "caption": "Configure",
             "loadingText": "Load text while waiting",
-            "settings": {
-               "fields": [
-                  {
-                     "type": "list",
-                     "name": "version",
-                     "required": true,
-                     "caption": "Node.js version",
-                     "values": {
-                        "setup": "0.10.x",
-                        "setup_0.12": "0.12.x",
-                        "setup_4.x": "4.x",
-                        "setup_5.x": "5.x",
-                        "setup_6.x": "6.x"
-                     },
-                     "default": "setup_6.x"
-                  }
-               ]
-            },
-            "procedure": "reinstallNode"
+            "fields": [
+               {
+                  "settings": "config",
+                  "type": "list",
+                  "caption": "config",
+                  "name": "version",
+                  "values": {
+                     "setup": "0.10.x",
+                     "setup_0.12": "0.12.x",
+                     "setup_4.x": "4.x",
+                     "setup_5.x": "5.x",
+                     "setup_6.x": "6.x"
+                  },
+                  "default": "setup_6.x"
+               }
+            ],
+            "procedure": "reinstallNode",
+            "call": [
+               {
+                  "executeShellCommands": [
+                     {
+                        "nodeMission": "cp",
+                        "user": "root",
+                        "commands": [
+                           "tty -s && mesg n 2>&1",
+                           "curl --silent --location https://rpm.nodesource.com/${settings.version} | bash - 2>/dev/null 1>/dev/null",
+                           "yum clean all",
+                           "yum -y install nodejs 2>/dev/null 1>/dev/null",
+                           "npm -g install npm@latest 2>/dev/null 1>/dev/null"
+                        ]
+                     }
+                  ]
+               },
+               {
+                  "executeShellCommands": [
+                     {
+                        "nodeMission": "cp",
+                        "user": "jelastic",
+                        "commands": [
+                           "echo -e \"export PATH=\"$HOME/node_modules/.bin:$PATH\"\" >> $HOME/.bashrc"
+                        ]
+                     }
+                  ]
+               }
+            ]
          }
       ],
       "onInstall": {
@@ -92,6 +134,12 @@
       },
       "onUninstall": {
          "call": "removeNode"
+      },
+      "onReinstall": {
+         "call": [
+            "removeNode",
+            "installNode"
+         ]
       },
       "procedures": [
          {
@@ -160,9 +208,19 @@
                   "executeShellCommands": [
                      {
                         "nodeMission": "cp",
+                        "user": "root",
+                        "commands": [
+                           "rpm -e nodejs nodesource-release 2>/dev/null 1>/dev/null"
+                        ]
+                     }
+                  ]
+               },
+               {
+                  "executeShellCommands": [
+                     {
+                        "nodeMission": "cp",
                         "user": "jelastic",
                         "commands": [
-                           "rpm -e nodejs nodesource-release 2>/dev/null 1>/dev/null",
                            "rm -rf $HOME/node_modules 2>/dev/null 1>/dev/null",
                            "sed -i \"/node_modules/d\" $HOME/.bashrc 2>/dev/null 1>/dev/null"
                         ]
