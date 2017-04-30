@@ -15,7 +15,7 @@
          ]
       },
       "homepage": "https://nodejs.org/en/",
-      "logo": "http://jps.layershift.com/nodejs/node.png",
+      "logo": "https://github.com/bubbl/nodejs-php/raw/master/node.png",
       "description": {
          "en": "Node.js® is a JavaScript runtime built on Chrome's V8 JavaScript engine. Node.js uses an event-driven, non-blocking I/O model that makes it lightweight and efficient. Node.js' package ecosystem, npm, is the largest ecosystem of open source libraries in the world."
       },
@@ -29,16 +29,15 @@
          },
          {
             "caption": "Change version",
+            "settings": "main",
             "confirmText": "This option will replace the current NodeJS version. Would you like to continue?",
-            "menu": [
-               {
-                  "caption": "Update Agent",
-                  "procedure": "installNode",
-                  "confirmText": "This option will check for the NodeJS updates. Would you like to continue?",
-                  "successText": "The NodeJS add-on was updated. Please, restart your web server instance for the changes to be applied.",
-                  "loadingText": "Performing NodeJS update..."
-               }
-            ],
+            "procedure": "reinstallNode",
+            "loadingText": "Performing NodeJS update..."
+         },
+         {
+            "caption": "Install Agent",
+            "confirmText": "This option will replace the current NodeJS version. Would you like to continue?",
+            "procedure": "installNode",
             "loadingText": "Performing NodeJS update..."
          }
       ],
@@ -60,30 +59,6 @@
             }
          ]
       },
-      "buttons": [
-         {
-            "caption": "Configure",
-            "loadingText": "Load text while waiting",
-            "fields": [
-               {
-                  "type": "list",
-                  "required": true,
-                  "caption": "Configure",
-                  "settings":"config",
-                  "name": "customString",
-                  "values": {
-                     "setup": "0.10.x",
-                     "setup_0.12": "0.12.x",
-                     "setup_4.x": "4.x",
-                     "setup_5.x": "5.x",
-                     "setup_6.x": "6.x"
-                  },
-                  "default": "setup_6.x"
-               }
-            ],
-            "procedure": "reinstallNode"
-         }
-      ],
       "onInstall": {
          "call": [
             "installNode"
@@ -133,7 +108,7 @@
                         "nodeMission": "cp",
                         "user": "root",
                         "commands": [
-                           "rpm -e nodejs nodesource-release 2>&1"
+                           "rpm -e nodejs nodesource-release 2>/dev/null 1>/dev/null"
                         ]
                      }
                   ]
@@ -145,7 +120,7 @@
                         "user": "jelastic",
                         "commands": [
                            "rm -rf $HOME/node_modules 2>&1",
-                           "sed -i \"/node_modules/d\" $HOME/.bashrc 2>&1"
+                           "sed -i \"/node_modules/d\" $HOME/.bashrc 2>/dev/null 1>/dev/null"
                         ]
                      }
                   ]
@@ -156,17 +131,7 @@
             "id": "reinstallNode",
             "onCall": [
                {
-                  "executeShellCommands": [
-                     {
-                        "nodeMission": "cp",
-                        "user": "jelastic",
-                        "commands": [
-                           "rpm -e nodejs nodesource-release 2>&1",
-                           "rm -rf $HOME/node_modules 2>&1",
-                           "sed -i \"/node_modules/d\" $HOME/.bashrc 2>&1"
-                        ]
-                     }
-                  ]
+                  "removeNode": {}
                },
                {
                   "executeShellCommands": [
@@ -175,7 +140,7 @@
                         "user": "root",
                         "commands": [
                            "tty -s && mesg n 2>&1",
-                           "curl --silent --location https://rpm.nodesource.com/${settings.customString} | bash - 2>/dev/null 1>/dev/null",
+                           "curl --silent --location https://rpm.nodesource.com/${this.version} | bash - 2>/dev/null 1>/dev/null",
                            "yum clean all",
                            "yum -y install nodejs 2>/dev/null 1>/dev/null",
                            "npm -g install npm@latest 2>/dev/null 1>/dev/null"
