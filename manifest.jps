@@ -61,7 +61,11 @@
       },
       "onInstall": {
          "call": [
-            "installNode"
+            {
+               "installNode": {
+                  "version": "${settings.version}"
+               }
+            }
          ]
       },
       "onUninstall": {
@@ -78,7 +82,7 @@
                         "user": "root",
                         "commands": [
                            "tty -s && mesg n 2>&1",
-                           "curl --silent --location https://rpm.nodesource.com/${settings.version} | bash - 2>/dev/null 1>/dev/null",
+                           "curl --silent --location https://rpm.nodesource.com/${this.version} | bash - 2>/dev/null 1>/dev/null",
                            "yum clean all",
                            "yum -y install nodejs 2>/dev/null 1>/dev/null",
                            "npm -g install npm@latest 2>/dev/null 1>/dev/null"
@@ -134,30 +138,9 @@
                   "removeNode": {}
                },
                {
-                  "executeShellCommands": [
-                     {
-                        "nodeMission": "cp",
-                        "user": "root",
-                        "commands": [
-                           "tty -s && mesg n 2>&1",
-                           "curl --silent --location https://rpm.nodesource.com/${this.version} | bash - 2>/dev/null 1>/dev/null",
-                           "yum clean all",
-                           "yum -y install nodejs 2>/dev/null 1>/dev/null",
-                           "npm -g install npm@latest 2>/dev/null 1>/dev/null"
-                        ]
-                     }
-                  ]
-               },
-               {
-                  "executeShellCommands": [
-                     {
-                        "nodeMission": "cp",
-                        "user": "jelastic",
-                        "commands": [
-                           "echo -e \"export PATH=\"$HOME/node_modules/.bin:$PATH\"\" >> $HOME/.bashrc"
-                        ]
-                     }
-                  ]
+                  "installNode": {
+                     "version": "${this.version}"
+                  }
                }
             ]
          }
